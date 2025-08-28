@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 游戏角色管理系统</title>
+    <style>
+        /* 暗色主题基础样式 */
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%); 
+            color: #e0e0e0; 
+            margin: 0; 
+            padding: 20px; 
+            min-height: 100vh;
+        }
+        
+        .container { 
+            max-width: 1600px; 
+            margin: 0 auto; 
+            background: rgba(40, 44, 52, 0.95); 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* 标题样式 */
+        h1 { 
+            text-align: center; 
+            color: #61dafb; 
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 信息面板样式 */
+        .info-panel { 
+            text-align: center; 
+            color: #2ecc71; 
+            background: rgba(46, 204, 113, 0.1); 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            font-weight: 500;
+        }
+        
+        /* 顶部控制面板 */
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 30, 46, 0.8);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-left, .control-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* 开关按钮样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #34495e;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #61dafb;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* 日期选择器样式 */
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(52, 73, 94, 0.5);
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .date-selector input {
+            background: rgba(30, 30, 46, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .date-selector input:focus {
+            outline: none;
+            border-color: #61dafb;
+            box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+        }
+        
+        /* 表单面板样式 */
+        .form-panel { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px; 
+            margin-bottom: 25px; 
+            padding: 20px; 
+            background: rgba(30, 30, 46, 0.6); 
+            border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-panel input, .form-panel select { 
+            padding: 12px 15px; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 6px; 
+            background: rgba(40, 44, 52, 0.8);
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-panel input:focus, .form-panel select:focus { 
+            outline: none;
+            border-color: #61dafb;
+            box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .form-panel input::placeholder {
+            color: #7f8c8d;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #61dafb 0%, #21a9c7 100%); 
+            color: #1e1e2e;
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c5ce7 0%, #5a4fcf 100%);
+            color: white;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+        
+        /* 表格样式 */
+        .table-container {
+            background: rgba(30, 30, 46, 0.6);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: visible;
+            max-height: 70vh;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .table-scroll-wrapper::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        
+        .table-scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(52, 73, 94, 0.3);
+            border-radius: 4px;
+        }
+        
+        .table-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(97, 218, 251, 0.6);
+            border-radius: 4px;
+        }
+        
+        .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(97, 218, 251, 0.8);
+        }
+        
+        table { 
+            border-collapse: collapse; 
+            background: transparent;
+            width: 100%;
+            min-width: max-content;
+        }
+        
+        th, td { 
+            padding: 15px 12px; 
+            text-align: center; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        /* 优化列宽分配 */
+        th:nth-child(1), td:nth-child(1) { width: 50px; min-width: 50px; } /* 拖拽 */
+        th:nth-child(2), td:nth-child(2) { width: 60px; min-width: 60px; } /* 星标 */
+        th:nth-child(3), td:nth-child(3) { width: 140px; min-width: 140px; } /* 账号 */
+        th:nth-child(4), td:nth-child(4) { width: 120px; min-width: 120px; } /* 密码 */
+        th:nth-child(5), td:nth-child(5) { width: 120px; min-width: 120px; } /* 角色名 */
+        th:nth-child(6), td:nth-child(6) { width: 80px; min-width: 80px; } /* 等级 */
+        th:nth-child(7), td:nth-child(7) { width: 90px; min-width: 90px; } /* 流星泪 */
+        th:nth-child(8), td:nth-child(8) { width: 80px; min-width: 80px; } /* 职业 */
+        
+        /* 操作列固定在右侧 */
+        .action-column {
+            position: sticky;
+            right: 0;
+            width: 180px !important;
+            min-width: 180px !important;
+            max-width: 180px !important;
+            background: rgba(30, 30, 46, 0.95);
+            z-index: 10;
+            box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+        }
+
+        thead th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: #61dafb;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr {
+            background: rgba(40, 44, 52, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(97, 218, 251, 0.1);
+            transform: translateY(-1px);
+        }
+
+        tbody tr.starred {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ffd700;
+        }
+
+        tbody tr.starred:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        /* 可复制单元格样式 */
+        .copyable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .copyable:hover {
+            background: rgba(97, 218, 251, 0.2);
+            color: #61dafb;
+        }
+
+        .copyable::after {
+            content: "📋";
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 12px;
+        }
+
+        .copyable:hover::after {
+            opacity: 1;
+        }
+
+        /* 星标按钮样式 */
+        .star-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .star-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.2);
+        }
+
+        .star-btn.starred {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .star-btn:not(.starred) {
+            color: #7f8c8d;
+        }
+
+        /* 操作按钮样式 */
+        .action-buttons {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+        }
+
+        /* 签到相关样式 */
+        .checkin-date-header {
+            width: 90px !important;
+            min-width: 90px !important;
+            max-width: 90px !important;
+            padding: 12px 8px !important;
+            font-size: 12px;
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            white-space: nowrap;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .checkin-cell {
+            width: 90px !important;
+            min-width: 90px !important;
+            max-width: 90px !important;
+            padding: 8px !important;
+            text-align: center;
+        }
+
+        /* 代签状态 - 绿色 */
+        .checkin-btn {
+            padding: 6px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+        }
+
+        .checkin-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+        }
+
+        /* 已签到状态 - 橙色 */
+        .checkin-btn.checked-in {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            cursor: not-allowed;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        .checkin-btn.checked-in:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        /* 未来日期状态 - 灰色 */
+        .checkin-btn.future-date {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            cursor: not-allowed;
+            color: #ecf0f1;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .checkin-btn.future-date:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 过签状态 - 红色警告 */
+        .checkin-btn.missed {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            cursor: not-allowed;
+            color: white;
+            font-weight: bold;
+            animation: pulse-red 2s infinite;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+        }
+
+        .checkin-btn.missed:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+        }
+
+        /* 过签状态的脉冲动画 */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        /* 流星泪列样式 */
+        .meteor-tear-cell {
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
+
+        .meteor-tear-cell.level-0 {
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
+        /* 排序指示器 */
+        .sort-indicator {
+            font-size: 12px;
+            margin-left: 8px;
+            color: #61dafb;
+            text-shadow: 0 0 5px rgba(97, 218, 251, 0.5);
+        }
+
+        /* 拖拽功能样式 */
+        .draggable-row {
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .draggable-row:hover {
+            background: rgba(97, 218, 251, 0.1) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .drag-over {
+            border-top: 3px solid #61dafb !important;
+        }
+
+        .drag-handle {
+            cursor: move;
+            color: #7f8c8d;
+            font-size: 16px;
+            padding: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .drag-handle:hover {
+            color: #61dafb;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2d2d44 0%, #1e1e2e 100%);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h3 {
+            color: #61dafb;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        /* 复制成功提示样式 */
+        .copy-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+            z-index: 9999;
+            font-weight: 500;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .copy-toast::before {
+            content: "✓";
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            .form-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .control-left, .control-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .copy-toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                transform: translateY(-100%);
+            }
+
+            .copy-toast.show {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 游戏角色管理系统</h1>
+        <div class="info-panel">
+            <strong>✨ 数据自动保存 | 支持增删改查 | 星标主账号 | 自定义签到周期</strong>
+            <div id="dataPathInfo" style="font-size: 12px; margin-top: 5px; color: #7f8c8d;"></div>
+        </div>
+
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <div class="control-left">
+                <label style="color: #e0e0e0; font-weight: 500;">签到功能</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="checkinToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="control-right" id="dateControls" style="display: none;">
+                <div class="date-selector">
+                    <label style="color: #e0e0e0; font-size: 14px;">签到周期:</label>
+                    <input type="date" id="startDate">
+                    <span style="color: #7f8c8d;">至</span>
+                    <input type="date" id="endDate">
+                    <button class="btn btn-secondary btn-small" id="applyDateBtn">应用</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表单面板 -->
+        <div class="form-panel">
+            <input type="text" id="charAccount" placeholder="账号">
+            <input type="password" id="charPassword" placeholder="密码">
+            <input type="text" id="charName" placeholder="角色名称">
+            <input type="number" id="charLevel" placeholder="等级">
+            <input type="number" id="charMeteorTear" placeholder="流星泪等级" min="0" max="10">
+            <select id="charClass">
+                <option value="战士">战士</option>
+                <option value="法师">法师</option>
+                <option value="奶妈">奶妈</option>
+            </select>
+            <button class="btn btn-primary" id="addCharBtn">添加角色</button>
+            <button class="btn btn-secondary" id="sortByLevelBtn">按等级排序</button>
+        </div>
+
+        <!-- 表格容器 -->
+        <div class="table-container">
+            <div class="table-scroll-wrapper">
+                <table id="mainTable">
+                    <thead id="mainTableHead"></thead>
+                    <tbody id="mainTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>✏️ 编辑角色信息</h3>
+            <div class="form-panel">
+                <input type="text" id="editAccount" placeholder="账号">
+                <input type="password" id="editPassword" placeholder="密码">
+                <input type="text" id="editName" placeholder="角色名称">
+                <input type="number" id="editLevel" placeholder="等级">
+                <input type="number" id="editMeteorTear" placeholder="流星泪等级" min="0" max="10">
+                <select id="editClass">
+                    <option value="战士">战士</option>
+                    <option value="法师">法师</option>
+                    <option value="奶妈">奶妈</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="saveEditBtn">保存</button>
+                <button class="btn btn-secondary" id="cancelEditBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ 确认删除</h3>
+            <p style="color: #e0e0e0; text-align: center; margin: 20px 0;">确定要删除这个角色吗？此操作不可撤销。</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+                <button class="btn btn-secondary" id="cancelDeleteBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 清除签到数据确认框 -->
+    <div id="clearCheckinModal" class="modal">
+        <div class="modal-content">
+            <h3>🗑️ 清除签到数据</h3>
+            <p style="color: #e0e0e0; text-align: center; margin: 20px 0;">关闭签到功能将清除当前签到周期的所有签到记录，是否继续？</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" id="confirmClearBtn">确认清除</button>
+                <button class="btn btn-secondary" id="cancelClearBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 复制成功提示 -->
+    <div id="copyToast" class="copy-toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM 元素引用
+            const addCharBtn = document.getElementById('addCharBtn');
+            const tableHead = document.getElementById('mainTableHead');
+            const tableBody = document.getElementById('mainTableBody');
+            const checkinToggle = document.getElementById('checkinToggle');
+            const dateControls = document.getElementById('dateControls');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const applyDateBtn = document.getElementById('applyDateBtn');
+            const editModal = document.getElementById('editModal');
+            const deleteModal = document.getElementById('deleteModal');
+            const clearCheckinModal = document.getElementById('clearCheckinModal');
+
+            // 数据变量
+            let characters = [];
+            let checkinEnabled = false;
+            let customStartDate = null;
+            let customEndDate = null;
+            let dateHeaders = [];
+            let sortOrder = 'asc';
+            let editingIndex = -1;
+            let deletingIndex = -1;
+            let draggedIndex = -1;
+            let draggedElement = null;
+
+            // 数据保存函数
+            function saveData() {
+                const dataToSave = {
+                    characters: characters,
+                    settings: {
+                        checkinEnabled: checkinEnabled,
+                        customStartDate: customStartDate,
+                        customEndDate: customEndDate,
+                        dateHeaders: dateHeaders
+                    }
+                };
+                window.electronAPI.saveData(dataToSave);
+            }
+
+            // 表格渲染函数
+            function renderTable() {
+                tableHead.innerHTML = '';
+                tableBody.innerHTML = '';
+
+                // 构建表头
+                const headerRow = document.createElement('tr');
+                const baseHeaders = ['🔄', '⭐', '账号', '密码', '角色名称', '等级', '流星泪', '职业'];
+                const allHeaders = [...baseHeaders];
+
+                // 添加签到列
+                if (checkinEnabled && dateHeaders.length > 0) {
+                    allHeaders.push(...dateHeaders);
+                }
+
+                allHeaders.push('操作');
+
+                allHeaders.forEach((text, index) => {
+                    const th = document.createElement('th');
+                    if (text === '等级') {
+                        th.innerHTML = `等级 <span class="sort-indicator">${sortOrder === 'asc' ? '↑' : '↓'}</span>`;
+                        th.style.cursor = 'pointer';
+                        th.onclick = sortByLevel;
+                    } else if (dateHeaders.includes(text)) {
+                        // 签到日期列
+                        th.textContent = text;
+                        th.className = 'checkin-date-header';
+                    } else if (text === '操作') {
+                        // 操作列
+                        th.textContent = text;
+                        th.className = 'action-column';
+                    } else {
+                        th.textContent = text;
+                    }
+                    headerRow.appendChild(th);
+                });
+                tableHead.appendChild(headerRow);
+
+                // 排序角色：星标角色在前，然后按用户自定义顺序
+                const sortedCharacters = [...characters].sort((a, b) => {
+                    if (a.starred && !b.starred) return -1;
+                    if (!a.starred && b.starred) return 1;
+                    return (a.order || 0) - (b.order || 0);
+                });
+
+                // 渲染表格行
+                sortedCharacters.forEach((char, displayIndex) => {
+                    const charIndex = characters.findIndex(c => c === char);
+                    const row = document.createElement('tr');
+
+                    // 添加拖拽和样式
+                    row.className = 'draggable-row';
+                    row.draggable = true;
+                    row.dataset.charIndex = charIndex;
+
+                    if (char.starred) {
+                        row.classList.add('starred');
+                    }
+
+                    // 拖拽事件
+                    row.addEventListener('dragstart', handleDragStart);
+                    row.addEventListener('dragover', handleDragOver);
+                    row.addEventListener('drop', handleDrop);
+                    row.addEventListener('dragend', handleDragEnd);
+
+                    // 拖拽手柄列
+                    const dragTd = document.createElement('td');
+                    const dragHandle = document.createElement('span');
+                    dragHandle.className = 'drag-handle';
+                    dragHandle.innerHTML = '⋮⋮';
+                    dragHandle.title = '拖拽排序';
+                    dragTd.appendChild(dragHandle);
+                    row.appendChild(dragTd);
+
+                    // 星标列
+                    const starTd = document.createElement('td');
+                    const starBtn = document.createElement('button');
+                    starBtn.className = `star-btn ${char.starred ? 'starred' : ''}`;
+                    starBtn.textContent = char.starred ? '⭐' : '☆';
+                    starBtn.title = char.starred ? '取消星标' : '设为星标';
+                    starBtn.onclick = () => toggleStar(charIndex);
+                    starTd.appendChild(starBtn);
+                    row.appendChild(starTd);
+
+                    // 账号列（可单击复制）
+                    const accountTd = document.createElement('td');
+                    accountTd.textContent = char.account;
+                    accountTd.className = 'copyable';
+                    accountTd.title = '单击复制账号';
+                    accountTd.onclick = () => copyToClipboard(char.account, '账号');
+                    row.appendChild(accountTd);
+
+                    // 密码列（可单击复制）
+                    const passwordTd = document.createElement('td');
+                    passwordTd.textContent = char.password || '';
+                    passwordTd.className = 'copyable';
+                    passwordTd.title = '单击复制密码';
+                    passwordTd.onclick = () => copyToClipboard(char.password || '', '密码');
+                    row.appendChild(passwordTd);
+
+                    // 其他列
+                    const nameTd = document.createElement('td');
+                    nameTd.textContent = char.name;
+                    row.appendChild(nameTd);
+
+                    const levelTd = document.createElement('td');
+                    levelTd.textContent = char.level;
+                    row.appendChild(levelTd);
+
+                    // 流星泪列
+                    const meteorTearTd = document.createElement('td');
+                    const meteorLevel = char.meteorTear || 0;
+                    meteorTearTd.className = `meteor-tear-cell ${meteorLevel === 0 ? 'level-0' : ''}`;
+                    if (meteorLevel > 0) {
+                        meteorTearTd.innerHTML = `⭐${meteorLevel}`;
+                        meteorTearTd.style.color = '#ffd700';
+                        meteorTearTd.title = `流星泪等级: ${meteorLevel}`;
+                    } else {
+                        meteorTearTd.textContent = '-';
+                        meteorTearTd.title = '未设置流星泪等级';
+                    }
+                    row.appendChild(meteorTearTd);
+
+                    const classTd = document.createElement('td');
+                    classTd.textContent = char.class;
+                    row.appendChild(classTd);
+
+                    // 签到按钮列（仅在启用时显示）
+                    if (checkinEnabled && dateHeaders.length > 0) {
+                        dateHeaders.forEach(date => {
+                            const td = document.createElement('td');
+                            td.className = 'checkin-cell';
+                            const button = document.createElement('button');
+                            button.className = 'checkin-btn';
+                            button.dataset.charIndex = charIndex;
+                            button.dataset.date = date;
+
+                            // 获取本地日期，避免时区问题
+                            const now = new Date();
+                            const today = now.getFullYear() + '-' +
+                                         String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                                         String(now.getDate()).padStart(2, '0');
+
+                            // 调试信息（可以在控制台查看）
+                            console.log(`日期比较: ${date} vs 今天: ${today}, 当前时间: ${now}`);
+
+                            if (char.checkins && char.checkins[date]) {
+                                // 已签到
+                                button.textContent = '✓';
+                                button.classList.add('checked-in');
+                                button.disabled = true;
+                                button.title = `${date} 已签到`;
+                            } else if (date > today) {
+                                // 未来日期 - 不能签到
+                                button.textContent = '○';
+                                button.classList.add('future-date');
+                                button.disabled = true;
+                                button.title = `${date} 未到签到时间`;
+                            } else if (date < today) {
+                                // 过去日期且未签到 - 过签
+                                button.textContent = '✗';
+                                button.classList.add('missed');
+                                button.disabled = true;
+                                button.title = `${date} 已过签`;
+                            } else {
+                                // 当天 - 可以签到
+                                button.textContent = '○';
+                                button.title = `${date} 点击签到`;
+                            }
+                            td.appendChild(button);
+                            row.appendChild(td);
+                        });
+                    }
+
+                    // 操作列
+                    const actionTd = document.createElement('td');
+                    actionTd.className = 'action-column';
+                    const actionButtons = document.createElement('div');
+                    actionButtons.className = 'action-buttons';
+
+                    // 复制账密按钮
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'btn-small btn-success';
+                    copyBtn.textContent = '复制';
+                    copyBtn.title = '复制账号和密码';
+                    copyBtn.onclick = () => copyAccountPassword(char.account, char.password || '');
+                    actionButtons.appendChild(copyBtn);
+
+                    // 编辑按钮
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn-small btn-primary';
+                    editBtn.textContent = '编辑';
+                    editBtn.onclick = () => editCharacter(charIndex);
+                    actionButtons.appendChild(editBtn);
+
+                    // 删除按钮
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-small btn-danger';
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.onclick = () => deleteCharacter(charIndex);
+                    actionButtons.appendChild(deleteBtn);
+
+                    actionTd.appendChild(actionButtons);
+                    row.appendChild(actionTd);
+
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // 添加角色功能
+            function handleAddCharacter() {
+                const charAccount = document.getElementById('charAccount').value.trim();
+                const charPassword = document.getElementById('charPassword').value.trim();
+                const charName = document.getElementById('charName').value.trim();
+                const charLevel = document.getElementById('charLevel').value;
+                const charMeteorTear = document.getElementById('charMeteorTear').value;
+                const charClass = document.getElementById('charClass').value;
+
+                if (!charAccount || !charName) {
+                    alert('账号和角色名称不能为空！');
+                    return;
+                }
+
+                const newCharacter = {
+                    account: charAccount,
+                    password: charPassword,
+                    name: charName,
+                    level: charLevel || '1',
+                    meteorTear: parseInt(charMeteorTear) || 0,
+                    class: charClass,
+                    starred: false,
+                    checkins: {},
+                    order: characters.length
+                };
+
+                characters.push(newCharacter);
+                renderTable();
+                saveData();
+                clearForm();
+            }
+
+            function clearForm() {
+                document.getElementById('charAccount').value = '';
+                document.getElementById('charPassword').value = '';
+                document.getElementById('charName').value = '';
+                document.getElementById('charLevel').value = '';
+                document.getElementById('charMeteorTear').value = '';
+            }
+
+            // 签到功能
+            function handleCheckinClick(event) {
+                const target = event.target;
+                if (target.classList.contains('checkin-btn') && !target.disabled) {
+                    const charIndex = target.dataset.charIndex;
+                    const date = target.dataset.date;
+                    // 获取本地日期，避免时区问题
+                    const now = new Date();
+                    const today = now.getFullYear() + '-' +
+                                 String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                                 String(now.getDate()).padStart(2, '0');
+
+                    // 只允许当天签到
+                    if (date !== today) {
+                        if (date > today) {
+                            showCopyToast('还未到签到时间');
+                        } else {
+                            showCopyToast('签到时间已过');
+                        }
+                        return;
+                    }
+
+                    if (!characters[charIndex].checkins) {
+                        characters[charIndex].checkins = {};
+                    }
+                    characters[charIndex].checkins[date] = true;
+
+                    showCopyToast(`${characters[charIndex].name} 签到成功！`);
+                    renderTable();
+                    saveData();
+                }
+            }
+
+            // 显示复制成功提示
+            function showCopyToast(message) {
+                const toast = document.getElementById('copyToast');
+                toast.textContent = message;
+                toast.classList.add('show');
+
+                // 3秒后自动隐藏
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // 复制到剪贴板功能
+            function copyToClipboard(text, type) {
+                if (!text) {
+                    showCopyToast(`${type}为空，无法复制`);
+                    return;
+                }
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyToast(`${type}已复制: ${text}`);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    // 降级方案：使用传统方法复制
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showCopyToast(`${type}已复制: ${text}`);
+                    } catch (fallbackErr) {
+                        showCopyToast('复制失败，请手动复制');
+                    }
+                });
+            }
+
+            // 复制账号密码功能
+            function copyAccountPassword(account, password) {
+                const text = `${account},${password}`;
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyToast(`账密已复制: ${text}`);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    // 降级方案：使用传统方法复制
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        showCopyToast(`账密已复制: ${text}`);
+                    } catch (fallbackErr) {
+                        showCopyToast('复制失败，请手动复制');
+                    }
+                });
+            }
+
+            // 按等级排序功能
+            function sortByLevel() {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+                characters.sort((a, b) => {
+                    const levelA = parseInt(a.level) || 0;
+                    const levelB = parseInt(b.level) || 0;
+                    return sortOrder === 'asc' ? levelA - levelB : levelB - levelA;
+                });
+                renderTable();
+                saveData();
+            }
+
+            // 星标功能
+            function toggleStar(index) {
+                characters[index].starred = !characters[index].starred;
+                renderTable();
+                saveData();
+            }
+
+            // 编辑角色功能
+            function editCharacter(index) {
+                editingIndex = index;
+                const char = characters[index];
+
+                document.getElementById('editAccount').value = char.account;
+                document.getElementById('editPassword').value = char.password || '';
+                document.getElementById('editName').value = char.name;
+                document.getElementById('editLevel').value = char.level;
+                document.getElementById('editMeteorTear').value = char.meteorTear || '';
+                document.getElementById('editClass').value = char.class;
+
+                editModal.style.display = 'block';
+            }
+
+            function saveEdit() {
+                if (editingIndex === -1) return;
+
+                const newAccount = document.getElementById('editAccount').value.trim();
+                const newPassword = document.getElementById('editPassword').value.trim();
+                const newName = document.getElementById('editName').value.trim();
+                const newLevel = document.getElementById('editLevel').value;
+                const newMeteorTear = document.getElementById('editMeteorTear').value;
+                const newClass = document.getElementById('editClass').value;
+
+                if (!newAccount || !newName) {
+                    alert('账号和角色名称不能为空！');
+                    return;
+                }
+
+                characters[editingIndex] = {
+                    ...characters[editingIndex],
+                    account: newAccount,
+                    password: newPassword,
+                    name: newName,
+                    level: newLevel || '1',
+                    meteorTear: parseInt(newMeteorTear) || 0,
+                    class: newClass
+                };
+
+                editModal.style.display = 'none';
+                editingIndex = -1;
+                renderTable();
+                saveData();
+            }
+
+            function cancelEdit() {
+                editModal.style.display = 'none';
+                editingIndex = -1;
+            }
+
+            // 删除角色功能
+            function deleteCharacter(index) {
+                deletingIndex = index;
+                deleteModal.style.display = 'block';
+            }
+
+            function confirmDelete() {
+                if (deletingIndex === -1) return;
+
+                characters.splice(deletingIndex, 1);
+                deleteModal.style.display = 'none';
+                deletingIndex = -1;
+                renderTable();
+                saveData();
+            }
+
+            function cancelDelete() {
+                deleteModal.style.display = 'none';
+                deletingIndex = -1;
+            }
+
+            // 签到功能开关
+            function toggleCheckin() {
+                if (checkinToggle.checked) {
+                    // 开启签到功能
+                    dateControls.style.display = 'flex';
+                    checkinEnabled = true;
+
+                    // 设置默认日期范围（本周）
+                    const today = new Date();
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay());
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+                    startDateInput.value = startOfWeek.toISOString().split('T')[0];
+                    endDateInput.value = endOfWeek.toISOString().split('T')[0];
+
+                    applyDateRange();
+                } else {
+                    // 关闭签到功能前确认
+                    clearCheckinModal.style.display = 'block';
+                }
+            }
+
+            function disableCheckin() {
+                checkinEnabled = false;
+                dateControls.style.display = 'none';
+                customStartDate = null;
+                customEndDate = null;
+                dateHeaders = [];
+                renderTable();
+                saveData();
+            }
+
+            function applyDateRange() {
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+
+                if (!startDate || !endDate) {
+                    alert('请选择开始和结束日期！');
+                    return;
+                }
+
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('开始日期不能晚于结束日期！');
+                    return;
+                }
+
+                customStartDate = startDate;
+                customEndDate = endDate;
+
+                // 生成日期头部
+                dateHeaders = [];
+                const current = new Date(startDate);
+                const end = new Date(endDate);
+
+                while (current <= end) {
+                    dateHeaders.push(current.toISOString().split('T')[0]);
+                    current.setDate(current.getDate() + 1);
+                }
+
+                renderTable();
+                saveData();
+            }
+
+            // 清除签到数据确认
+            function confirmClearCheckin() {
+                // 清除所有角色的签到数据
+                characters.forEach(char => {
+                    char.checkins = {};
+                });
+
+                disableCheckin();
+                clearCheckinModal.style.display = 'none';
+                checkinToggle.checked = false;
+            }
+
+            function cancelClearCheckin() {
+                clearCheckinModal.style.display = 'none';
+                checkinToggle.checked = true; // 恢复开关状态
+            }
+
+            // 拖拽功能实现
+            function handleDragStart(e) {
+                draggedIndex = parseInt(e.target.dataset.charIndex);
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                const targetRow = e.target.closest('tr');
+                if (targetRow && targetRow !== draggedElement) {
+                    targetRow.classList.add('drag-over');
+                }
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                const targetRow = e.target.closest('tr');
+
+                if (targetRow && targetRow !== draggedElement) {
+                    const targetIndex = parseInt(targetRow.dataset.charIndex);
+
+                    if (draggedIndex !== targetIndex) {
+                        // 重新排序数组
+                        const draggedChar = characters[draggedIndex];
+                        characters.splice(draggedIndex, 1);
+                        characters.splice(targetIndex, 0, draggedChar);
+
+                        // 更新order属性
+                        characters.forEach((char, index) => {
+                            char.order = index;
+                        });
+
+                        renderTable();
+                        saveData();
+                    }
+                }
+
+                // 清除所有拖拽样式
+                document.querySelectorAll('.drag-over').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+            }
+
+            function handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+                document.querySelectorAll('.drag-over').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                draggedIndex = -1;
+                draggedElement = null;
+            }
+
+            // 初始化函数
+            async function initialize() {
+                // 应用启动时，自动加载数据
+                const loadedData = await window.electronAPI.loadData();
+
+                if (loadedData) {
+                    characters = loadedData.characters || [];
+
+                    if (loadedData.settings) {
+                        checkinEnabled = loadedData.settings.checkinEnabled || false;
+                        customStartDate = loadedData.settings.customStartDate;
+                        customEndDate = loadedData.settings.customEndDate;
+                        dateHeaders = loadedData.settings.dateHeaders || [];
+
+                        checkinToggle.checked = checkinEnabled;
+                        if (checkinEnabled) {
+                            dateControls.style.display = 'flex';
+                            if (customStartDate) startDateInput.value = customStartDate;
+                            if (customEndDate) endDateInput.value = customEndDate;
+                        }
+                    }
+                }
+
+                // 显示数据保存路径
+                const dataPath = await window.electronAPI.getDataPath();
+                document.getElementById('dataPathInfo').textContent = `数据保存位置: ${dataPath}`;
+
+                renderTable();
+            }
+
+            // 事件监听器
+            addCharBtn.addEventListener('click', handleAddCharacter);
+            document.getElementById('sortByLevelBtn').addEventListener('click', sortByLevel);
+            tableBody.addEventListener('click', handleCheckinClick);
+            checkinToggle.addEventListener('change', toggleCheckin);
+            applyDateBtn.addEventListener('click', applyDateRange);
+
+            // 编辑模态框事件
+            document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+            document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
+            // 删除模态框事件
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+            document.getElementById('cancelDeleteBtn').addEventListener('click', cancelDelete);
+
+            // 清除签到数据模态框事件
+            document.getElementById('confirmClearBtn').addEventListener('click', confirmClearCheckin);
+            document.getElementById('cancelClearBtn').addEventListener('click', cancelClearCheckin);
+
+            // 模态框点击外部关闭
+            window.addEventListener('click', (event) => {
+                if (event.target === editModal) {
+                    cancelEdit();
+                }
+                if (event.target === deleteModal) {
+                    cancelDelete();
+                }
+                if (event.target === clearCheckinModal) {
+                    cancelClearCheckin();
+                }
+            });
+
+            initialize();
+        });
+    </script>
+</body>
+</html>
